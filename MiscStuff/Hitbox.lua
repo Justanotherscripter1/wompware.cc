@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local targetPartName = "Head"
+local targetPartName = "HumanoidRootPart"
 local targetParts = {}
 
 local size = {
