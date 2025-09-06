@@ -1,73 +1,98 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local TargetPartName = "Head"
 
-local trackedHeads = {}
-local size = {x = 10, y = 10, z = 10}
+local targetPartName = "Head"
+local targetParts = {}
 
--- Function to apply hitbox changes
-local function applyHitbox(part)
-    if not part:GetAttribute("Extended") then
+local size = {
+    x = 10,
+    y = 10,
+    z = 10,
+}
+
+local Enabled = false
+
+local function extendPart(part)
+    if Enabled then
         part.Size = Vector3.new(size.x, size.y, size.z)
         part.Transparency = 0.5
         part.CanCollide = false
-        part.Anchored = false -- important to let the physics move the head
+        part.Anchored = false
         part:SetAttribute("Extended", true)
-        
-        -- Listen for accidental changes to size
+
         part:GetPropertyChangedSignal("Size"):Connect(function()
-            part.Size = Vector3.new(size.x, size.y, size.z)
+            if Enabled then
+                part.Size = Vector3.new(size.x, size.y, size.z)
+                part.Transparency = 0.5
+                part.CanCollide = false
+                part.Anchored = false
+            end
         end)
+    else
+        -- reset
+        part.Size = Vector3.new(2,1,1)
+        part.Transparency = 0
+        part.CanCollide = true
+        part.Anchored = false
+        part:SetAttribute("Extended", nil)
     end
 end
 
--- Track a player
-local function trackPlayer(player)
+local function updateTarget(player)
     if player ~= LocalPlayer then
-        -- When character spawns
         player.CharacterAdded:Connect(function(char)
-            local head = char:WaitForChild(TargetPartName, 5)
-            if head then
-                trackedHeads[player] = head
-                applyHitbox(head)
+            local part = char:WaitForChild(targetPartName, 5)
+            if part then
+                targetParts[player] = part
+                extendPart(part)
             end
         end)
-
-        -- Already spawned
         if player.Character then
-            local head = player.Character:FindFirstChild(TargetPartName)
-            if head then
-                trackedHeads[player] = head
-                applyHitbox(head)
+            local part = player.Character:FindFirstChild(targetPartName)
+            if part then
+                targetParts[player] = part
+                extendPart(part)
             end
         end
     end
 end
 
--- Track all current players
 for _, plr in ipairs(Players:GetPlayers()) do
-    trackPlayer(plr)
+    updateTarget(plr)
 end
 
--- Track new players
-Players.PlayerAdded:Connect(trackPlayer)
+Players.PlayerAdded:Connect(updateTarget)
 Players.PlayerRemoving:Connect(function(plr)
-    trackedHeads[plr] = nil
+    targetParts[plr] = nil
 end)
 
--- Optional: update all hitboxes when size changes (like sliders)
-local function updateAllHitboxes(newSize)
-    size = newSize
-    for _, head in pairs(trackedHeads) do
-        if head and head.Parent then
-            applyHitbox(head)
+-- toggle all hitboxes
+local function SetEnabled(value)
+    Enabled = value
+    for _, part in pairs(targetParts) do
+        if part and part.Parent then
+            extendPart(part)
         end
     end
 end
 
--- Return API
+-- update size dynamically
+local function SetSize(axis, newValue)
+    if size[axis] then
+        size[axis] = newValue
+        if Enabled then
+            for _, part in pairs(targetParts) do
+                if part and part.Parent then
+                    extendPart(part)
+                end
+            end
+        end
+    end
+end
+
 return {
     Sizes = size,
-    TargetPart = TargetPartName,
-    UpdateAllHitboxes = updateAllHitboxes
+    TargetPart = targetPartName,
+    SetEnabled = SetEnabled,
+    SetSize = SetSize
 }
