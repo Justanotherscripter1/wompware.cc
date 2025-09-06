@@ -18,12 +18,14 @@ local function extendPart(part)
         part.Transparency = 0.5
         part.CanCollide = false
         part.Anchored = false
+         part.Transparency = 0.5
         part:SetAttribute("Extended", true)
 
         part:GetPropertyChangedSignal("Size"):Connect(function()
             if Enabled then
                 part.Size = Vector3.new(size.x, size.y, size.z)
                 part.Transparency = 0.5
+                part.Material = neon
                 part.CanCollide = false
                 part.Anchored = false
             end
@@ -31,7 +33,7 @@ local function extendPart(part)
     else
         -- reset
         part.Size = Vector3.new(2,1,1)
-        part.Transparency = 0
+        part.Transparency = 0.8
         part.CanCollide = true
         part.Anchored = false
         part:SetAttribute("Extended", nil)
