@@ -19,13 +19,14 @@ local function extendPart(part)
         part.CanCollide = false
         part.Anchored = false
          part.Transparency = 0.5
+        part.Material = Enum.Material.Neon
         part:SetAttribute("Extended", true)
 
         part:GetPropertyChangedSignal("Size"):Connect(function()
             if Enabled then
                 part.Size = Vector3.new(size.x, size.y, size.z)
                 part.Transparency = 0.5
-                part.Material = neon
+                part.Material = Enum.Material.Neon
                 part.CanCollide = false
                 part.Anchored = false
             end
