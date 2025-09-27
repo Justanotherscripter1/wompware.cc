@@ -73,7 +73,7 @@ function NotificationLibrary:CreateNotification(config)
     ProgressContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 23)
     ProgressContainer.BorderSizePixel = 0
     ProgressContainer.Position = UDim2.new(0, 0, 1, -8)
-    ProgressContainer.Size = UDim2.new(1, 0, 0, 8)
+    ProgressContainer.Size = UDim2.new(1, 0, 0, 3.5)
     ProgressContainer.ClipsDescendants = true
 
     local ProgressContainerCorner = Instance.new("UICorner")
@@ -88,6 +88,10 @@ function NotificationLibrary:CreateNotification(config)
     ProgressBar.BorderSizePixel = 0
     ProgressBar.Size = UDim2.new(1, 0, 1, 0)
     ProgressBar.Position = UDim2.new(0, 0, 0, 0)
+
+    local ProgressCorner = Instance.new("UICorner")
+    ProgressCorner.CornerRadius = UDim.new(0, 4) -- half height for pill shape
+    ProgressCorner.Parent = ProgressBar
 
     -- Icon
     local IconImage = Instance.new("ImageLabel")
