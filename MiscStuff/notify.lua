@@ -182,13 +182,29 @@ function NotificationLibrary:CreateNotification(config)
         end)
     end
 
-    -- Close button hover
-    CloseButton.MouseEnter:Connect(function()
-        CloseButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-    end)
-    CloseButton.MouseLeave:Connect(function()
-        CloseButton.TextColor3 = Color3.fromRGB(120, 120, 120)
-    end)
+   -- Inside your CreateNotification, replace the CloseButton section with this:
+
+-- Close button hover
+CloseButton.MouseEnter:Connect(function()
+    CloseButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+    local turn = TweenService:Create(
+        CloseButton,
+        TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+        {Rotation = 45}
+    )
+    turn:Play()
+end)
+
+CloseButton.MouseLeave:Connect(function()
+    CloseButton.TextColor3 = Color3.fromRGB(120, 120, 120)
+    local turn2 = TweenService:Create(
+        CloseButton,
+        TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+        {Rotation = 0}
+    )
+    turn2:Play()
+end)
+
     CloseButton.MouseButton1Click:Connect(removeNotification)
 
     -- Play animations
