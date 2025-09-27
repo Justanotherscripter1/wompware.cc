@@ -77,22 +77,32 @@ function NotificationLibrary:CreateNotification(config)
     UIStroke.Transparency = 0.5
     UIStroke.Parent = Notification
     
+    -- Progress bar container (to clip the bar properly)
+    local ProgressContainer = Instance.new("Frame")
+    ProgressContainer.Name = "ProgressContainer"
+    ProgressContainer.Parent = Notification
+    ProgressContainer.BackgroundTransparency = 1
+    ProgressContainer.Position = UDim2.new(0, 0, 1, -12)
+    ProgressContainer.Size = UDim2.new(1, 0, 0, 12)
+    ProgressContainer.ClipsDescendants = true
+    
     -- Progress bar (background)
     local ProgressBarBG = Instance.new("Frame")
     ProgressBarBG.Name = "ProgressBarBG"
-    ProgressBarBG.Parent = Notification
+    ProgressBarBG.Parent = ProgressContainer
     ProgressBarBG.BackgroundColor3 = Color3.fromRGB(20, 20, 23)
     ProgressBarBG.BorderSizePixel = 0
-    ProgressBarBG.Position = UDim2.new(0, 0, 1, -4)
+    ProgressBarBG.Position = UDim2.new(0, 0, 0, 8)
     ProgressBarBG.Size = UDim2.new(1, 0, 0, 4)
     
-    -- Progress bar (fill)
+    -- Progress bar (fill) - START FULL and shrink to empty
     local ProgressBar = Instance.new("Frame")
     ProgressBar.Name = "ProgressBar"
     ProgressBar.Parent = ProgressBarBG
     ProgressBar.BackgroundColor3 = AccentColor
     ProgressBar.BorderSizePixel = 0
-    ProgressBar.Size = UDim2.new(0, 0, 1, 0)
+    ProgressBar.Size = UDim2.new(1, 0, 1, 0) -- Start at full width
+    ProgressBar.Position = UDim2.new(0, 0, 0, 0)
     
     -- Add glow to progress bar
     local ProgressGlow = Instance.new("UIGradient")
@@ -177,10 +187,11 @@ function NotificationLibrary:CreateNotification(config)
         {Position = UDim2.new(0, 0, 0, 0)}
     )
     
-    local progressFill = TweenService:Create(
+    -- Progress bar EMPTIES over time (starts full, goes to 0)
+    local progressEmpty = TweenService:Create(
         ProgressBar,
         TweenInfo.new(Duration, Enum.EasingStyle.Linear),
-        {Size = UDim2.new(1, 0, 1, 0)}
+        {Size = UDim2.new(0, 0, 1, 0)} -- Shrink to 0 width
     )
     
     local function removeNotification()
@@ -218,7 +229,7 @@ function NotificationLibrary:CreateNotification(config)
     -- Play animations
     slideIn:Play()
     wait(SLIDE_TIME)
-    progressFill:Play()
+    progressEmpty:Play()
     
     -- Auto remove after duration
     task.wait(Duration)
