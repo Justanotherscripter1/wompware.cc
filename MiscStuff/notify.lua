@@ -7,12 +7,19 @@ local NOTIFICATION_WIDTH = 350
 local NOTIFICATION_GAP = 10
 local EDGE_OFFSET = 20
 
+local HttpService = game:GetService("HttpService")
+
+local function uuid()
+    return HttpService:GenerateGUID(false) -- false = no braces
+end
+
 -- Create main GUI
 local AbyssGUI = Instance.new("ScreenGui")
-AbyssGUI.Name = "6zw4xe7r5ct8vy9uboinpo[m"
+AbyssGUI.Name = uuid()  -- now it actually calls the function
 AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
+
 
 -- Active notifications tracking
 local activeNotifications = {}
