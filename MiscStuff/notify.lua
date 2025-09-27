@@ -36,13 +36,6 @@ function NotificationLibrary:CreateNotification(config)
     local IconColor = config.IconColor or Color3.fromRGB(255, 200, 50)
     local AccentColor = config.AccentColor or Color3.fromRGB(255, 200, 50)
     
-    -- Make the accent color lighter for the progress bar
-    local LighterAccent = Color3.fromRGB(
-        math.min(255, AccentColor.R * 255 + 30),
-        math.min(255, AccentColor.G * 255 + 30),
-        math.min(255, AccentColor.B * 255 + 30)
-    )
-    
     -- Create notification frame
     local Notification = Instance.new("Frame")
     Notification.Name = "Notification"
@@ -90,66 +83,10 @@ function NotificationLibrary:CreateNotification(config)
     local ProgressBar = Instance.new("Frame")
     ProgressBar.Name = "ProgressBar"
     ProgressBar.Parent = ProgressBarBG
-    ProgressBar.BackgroundColor3 = LighterAccent
+    ProgressBar.BackgroundColor3 = AccentColor
     ProgressBar.BorderSizePixel = 0
     ProgressBar.Size = UDim2.new(1, 0, 1, 0)
     ProgressBar.Position = UDim2.new(0, 0, 0, 0)
-    
-    -- Add gradient for subtle shine effect
-    local ProgressGradient = Instance.new("UIGradient")
-    ProgressGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(240, 240, 240)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 220, 220))
-    }
-    ProgressGradient.Rotation = 90
-    ProgressGradient.Parent = ProgressBar
-    
-    -- Create glow effect frame
-    local GlowFrame = Instance.new("Frame")
-    GlowFrame.Name = "Glow"
-    GlowFrame.Parent = ProgressContainer
-    GlowFrame.BackgroundColor3 = LighterAccent
-    GlowFrame.BorderSizePixel = 0
-    GlowFrame.Position = UDim2.new(0, -2, 0, 3)
-    GlowFrame.Size = UDim2.new(1, 4, 0, 7)
-    GlowFrame.ZIndex = 0
-    
-    -- Add blur/glow gradient
-    local GlowGradient = Instance.new("UIGradient")
-    GlowGradient.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, 1),
-        NumberSequenceKeypoint.new(0.5, 0.7),
-        NumberSequenceKeypoint.new(1, 1)
-    }
-    GlowGradient.Rotation = 90
-    GlowGradient.Parent = GlowFrame
-    
-    -- Make glow pulse slightly
-    task.spawn(function()
-        while GlowFrame and GlowFrame.Parent do
-            TweenService:Create(
-                GlowGradient,
-                TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-                {Transparency = NumberSequence.new{
-                    NumberSequenceKeypoint.new(0, 1),
-                    NumberSequenceKeypoint.new(0.5, 0.6),
-                    NumberSequenceKeypoint.new(1, 1)
-                }}
-            ):Play()
-            task.wait(1.5)
-            TweenService:Create(
-                GlowGradient,
-                TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-                {Transparency = NumberSequence.new{
-                    NumberSequenceKeypoint.new(0, 1),
-                    NumberSequenceKeypoint.new(0.5, 0.8),
-                    NumberSequenceKeypoint.new(1, 1)
-                }}
-            ):Play()
-            task.wait(1.5)
-        end
-    end)
     
     -- Icon
     local IconImage = Instance.new("ImageLabel")
@@ -204,8 +141,7 @@ function NotificationLibrary:CreateNotification(config)
     -- Store notification data
     local notificationData = {
         Frame = Notification,
-        ProgressBar = ProgressBar,
-        GlowFrame = GlowFrame
+        ProgressBar = ProgressBar
     }
     table.insert(activeNotifications, notificationData)
     
@@ -221,13 +157,6 @@ function NotificationLibrary:CreateNotification(config)
         ProgressBar,
         TweenInfo.new(Duration, Enum.EasingStyle.Linear),
         {Size = UDim2.new(0, 0, 1, 0)}
-    )
-    
-    -- Glow shrink animation (synced with progress bar)
-    local glowShrink = TweenService:Create(
-        GlowFrame,
-        TweenInfo.new(Duration, Enum.EasingStyle.Linear),
-        {Size = UDim2.new(0, 4, 0, 7)}
     )
     
     local function removeNotification()
@@ -268,7 +197,6 @@ function NotificationLibrary:CreateNotification(config)
     slideIn:Play()
     task.wait(0.4)
     progressEmpty:Play()
-    glowShrink:Play()
     
     -- Auto remove after duration
     task.spawn(function()
