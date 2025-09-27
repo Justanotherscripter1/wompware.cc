@@ -13,7 +13,7 @@ NotificationLib:Error("Error", "Something went wrong", 4)
 ]]
 
 workspace.ChildAdded:Connect(function(thing)
-if if (tostring(thing) == "Angler" or tostring(thing) == "Froger" or tostring(thing) == "Pinkie" or tostring(thing) == "Blitz" or tostring(thing) == "Chainsmoker") and vals
+if (tostring(thing) == "Angler" or tostring(thing) == "Froger" or tostring(thing) == "Pinkie" or tostring(thing) == "Blitz" or tostring(thing) == "Chainsmoker") and vals
     NotificationLib:Notify(tostring(thing), tostring(thing).. " Spawned!", 5)
     elseif tostring(thing) == "Pandemonium" and vals then
     NotificationLib:Error(tostring(thing).." Spawned!", "your cooked buddy.", 5)
