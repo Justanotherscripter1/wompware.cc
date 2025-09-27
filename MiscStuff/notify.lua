@@ -1,7 +1,7 @@
 local NotificationLibrary = {}
 local TweenService = game:GetService("TweenService")
 function uuid()
-   return game:GetService("HttpService"):GeneratGUID()
+   return game:GetService("HttpService"):GenerateGUID()
 end
 
 
