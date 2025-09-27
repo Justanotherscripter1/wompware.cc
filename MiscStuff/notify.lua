@@ -1,8 +1,3 @@
-Below is an updated version of your notification code that adds rounded corners to the progress bar. In this version, two new `UICorner` instances are added—one for the progress bar’s background (`ProgressBarBG`) and one for the filling bar (`ProgressBar`)—to give them both smooth, rounded edges.
-
-You can adjust the `CornerRadius` values if needed (here they’re set to 2 pixels, which works well given that the progress bar is only 3 pixels high):
-
-```lua
 local NotificationLibrary = {}
 local TweenService = game:GetService("TweenService")
 
@@ -20,7 +15,7 @@ end
 
 -- Create main GUI
 local AbyssGUI = Instance.new("ScreenGui")
-AbyssGUI.Name = uuid()  -- now it actually calls the function
+AbyssGUI.Name = uuid()
 AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
@@ -47,7 +42,7 @@ function NotificationLibrary:CreateNotification(config)
     local IconColor = config.IconColor or Color3.fromRGB(255, 200, 50)
     local AccentColor = config.AccentColor or Color3.fromRGB(255, 200, 50)
     
-    -- Create notification frame
+    -- Notification frame
     local Notification = Instance.new("Frame")
     Notification.Name = "Notification"
     Notification.Parent = AbyssGUI
@@ -55,60 +50,45 @@ function NotificationLibrary:CreateNotification(config)
     Notification.BorderSizePixel = 0
     Notification.Size = UDim2.new(0, NOTIFICATION_WIDTH, 0, NOTIFICATION_HEIGHT)
     Notification.ClipsDescendants = true
-    
-    -- Start position (off-screen to the right)
+
     local startY = -EDGE_OFFSET - ((#activeNotifications + 1) * (NOTIFICATION_HEIGHT + NOTIFICATION_GAP))
     Notification.Position = UDim2.new(1, EDGE_OFFSET, 1, startY)
     
-    -- Rounded corners for notification frame
+    -- Rounded corners
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = Notification
     
-    -- Add subtle border
+    -- Subtle border
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Color = Color3.fromRGB(35, 35, 38)
     UIStroke.Thickness = 1
     UIStroke.Transparency = 0.5
     UIStroke.Parent = Notification
     
-    -- Progress bar container
+    -- Progress bar container (visible, rounded)
     local ProgressContainer = Instance.new("Frame")
     ProgressContainer.Name = "ProgressContainer"
     ProgressContainer.Parent = Notification
-    ProgressContainer.BackgroundTransparency = 1
+    ProgressContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 23)
+    ProgressContainer.BorderSizePixel = 0
     ProgressContainer.Position = UDim2.new(0, 0, 1, -8)
     ProgressContainer.Size = UDim2.new(1, 0, 0, 8)
     ProgressContainer.ClipsDescendants = true
-    
-    -- Progress bar background
-    local ProgressBarBG = Instance.new("Frame")
-    ProgressBarBG.Name = "ProgressBarBG"
-    ProgressBarBG.Parent = ProgressContainer
-    ProgressBarBG.BackgroundColor3 = Color3.fromRGB(20, 20, 23)
-    ProgressBarBG.BorderSizePixel = 0
-    ProgressBarBG.Position = UDim2.new(0, 0, 0, 5)
-    ProgressBarBG.Size = UDim2.new(1, 0, 0, 3)
-    
-    -- Rounded corners for progress bar background
-    local progressBarBGCorner = Instance.new("UICorner")
-    progressBarBGCorner.CornerRadius = UDim.new(0, 2)
-    progressBarBGCorner.Parent = ProgressBarBG
-    
-    -- Progress bar (starts full, empties over time)
+
+    local ProgressContainerCorner = Instance.new("UICorner")
+    ProgressContainerCorner.CornerRadius = UDim.new(0, 4) -- half height for pill shape
+    ProgressContainerCorner.Parent = ProgressContainer
+
+    -- Progress fill (shrinks)
     local ProgressBar = Instance.new("Frame")
     ProgressBar.Name = "ProgressBar"
-    ProgressBar.Parent = ProgressBarBG
+    ProgressBar.Parent = ProgressContainer
     ProgressBar.BackgroundColor3 = AccentColor
     ProgressBar.BorderSizePixel = 0
     ProgressBar.Size = UDim2.new(1, 0, 1, 0)
     ProgressBar.Position = UDim2.new(0, 0, 0, 0)
-    
-    -- Rounded corners for progress bar fill
-    local progressBarCorner = Instance.new("UICorner")
-    progressBarCorner.CornerRadius = UDim.new(0, 2)
-    progressBarCorner.Parent = ProgressBar
-    
+
     -- Icon
     local IconImage = Instance.new("ImageLabel")
     IconImage.Name = "Icon"
@@ -119,7 +99,7 @@ function NotificationLibrary:CreateNotification(config)
     IconImage.Image = Icon
     IconImage.ImageColor3 = IconColor
     IconImage.ScaleType = Enum.ScaleType.Fit
-    
+
     -- Title
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Name = "Title"
@@ -132,7 +112,7 @@ function NotificationLibrary:CreateNotification(config)
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLabel.TextSize = 14
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    
+
     -- Description
     local DescriptionLabel = Instance.new("TextLabel")
     DescriptionLabel.Name = "Description"
@@ -146,7 +126,7 @@ function NotificationLibrary:CreateNotification(config)
     DescriptionLabel.TextSize = 12
     DescriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
     DescriptionLabel.TextWrapped = true
-    
+
     -- Close button
     local CloseButton = Instance.new("TextButton")
     CloseButton.Name = "CloseButton"
@@ -158,39 +138,35 @@ function NotificationLibrary:CreateNotification(config)
     CloseButton.Text = "×"
     CloseButton.TextColor3 = Color3.fromRGB(120, 120, 120)
     CloseButton.TextSize = 18
-    
-    -- Store notification data
+
     local notificationData = {
         Frame = Notification,
         ProgressBar = ProgressBar
     }
     table.insert(activeNotifications, notificationData)
-    
-    -- Slide in animation
+
+    -- Slide in
     local slideIn = TweenService:Create(
         Notification,
         TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
         {Position = UDim2.new(1, -NOTIFICATION_WIDTH - EDGE_OFFSET, 1, startY)}
     )
-    
-    -- Progress bar animation (empty over time)
+
+    -- Progress shrink animation
     local progressEmpty = TweenService:Create(
         ProgressBar,
         TweenInfo.new(Duration, Enum.EasingStyle.Linear),
         {Size = UDim2.new(0, 0, 1, 0)}
     )
-    
+
     local function removeNotification()
-        -- Slide out animation
         local slideOut = TweenService:Create(
             Notification,
             TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
             {Position = UDim2.new(1, EDGE_OFFSET, 1, Notification.Position.Y.Offset)}
         )
-        
         slideOut:Play()
         slideOut.Completed:Connect(function()
-            -- Remove from active notifications
             for i, data in ipairs(activeNotifications) do
                 if data.Frame == Notification then
                     table.remove(activeNotifications, i)
@@ -198,28 +174,25 @@ function NotificationLibrary:CreateNotification(config)
                 end
             end
             Notification:Destroy()
-            -- Update positions of remaining notifications
             self:UpdatePositions()
         end)
     end
-    
-    -- Close button hover effect
+
+    -- Close button hover
     CloseButton.MouseEnter:Connect(function()
         CloseButton.TextColor3 = Color3.fromRGB(200, 200, 200)
     end)
-    
     CloseButton.MouseLeave:Connect(function()
         CloseButton.TextColor3 = Color3.fromRGB(120, 120, 120)
     end)
-    
     CloseButton.MouseButton1Click:Connect(removeNotification)
-    
+
     -- Play animations
     slideIn:Play()
     task.wait(0.4)
     progressEmpty:Play()
-    
-    -- Auto remove after duration
+
+    -- Auto-remove
     task.spawn(function()
         task.wait(Duration)
         removeNotification()
@@ -228,55 +201,32 @@ end
 
 -- Simple notify function
 function NotificationLibrary:Notify(title, description, duration)
-    self:CreateNotification({
-        Title = title,
-        Description = description,
-        Duration = duration or 3
-    })
+    self:CreateNotification({Title = title, Description = description, Duration = duration or 3})
 end
 
--- Preset notification types
+-- Presets
 function NotificationLibrary:Success(title, description, duration)
     self:CreateNotification({
-        Title = title,
-        Description = description,
-        Duration = duration or 3,
-        Icon = "rbxassetid://3944680095",
-        IconColor = Color3.fromRGB(50, 255, 100),
-        AccentColor = Color3.fromRGB(50, 255, 100)
+        Title = title, Description = description, Duration = duration or 3,
+        Icon = "rbxassetid://3944680095", IconColor = Color3.fromRGB(50,255,100), AccentColor = Color3.fromRGB(50,255,100)
     })
 end
-
 function NotificationLibrary:Error(title, description, duration)
     self:CreateNotification({
-        Title = title,
-        Description = description,
-        Duration = duration or 3,
-        Icon = "rbxassetid://3944703587",
-        IconColor = Color3.fromRGB(255, 50, 50),
-        AccentColor = Color3.fromRGB(255, 50, 50)
+        Title = title, Description = description, Duration = duration or 3,
+        Icon = "rbxassetid://3944703587", IconColor = Color3.fromRGB(255,50,50), AccentColor = Color3.fromRGB(255,50,50)
     })
 end
-
 function NotificationLibrary:Warning(title, description, duration)
     self:CreateNotification({
-        Title = title,
-        Description = description,
-        Duration = duration or 3,
-        Icon = "rbxassetid://3944668821",
-        IconColor = Color3.fromRGB(255, 200, 50),
-        AccentColor = Color3.fromRGB(255, 200, 50)
+        Title = title, Description = description, Duration = duration or 3,
+        Icon = "rbxassetid://3944668821", IconColor = Color3.fromRGB(255,200,50), AccentColor = Color3.fromRGB(255,200,50)
     })
 end
-
 function NotificationLibrary:Info(title, description, duration)
     self:CreateNotification({
-        Title = title,
-        Description = description,
-        Duration = duration or 3,
-        Icon = "rbxassetid://3944669912",
-        IconColor = Color3.fromRGB(50, 150, 255),
-        AccentColor = Color3.fromRGB(50, 150, 255)
+        Title = title, Description = description, Duration = duration or 3,
+        Icon = "rbxassetid://3944669912", IconColor = Color3.fromRGB(50,150,255), AccentColor = Color3.fromRGB(50,150,255)
     })
 end
 
