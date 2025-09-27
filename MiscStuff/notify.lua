@@ -83,7 +83,7 @@ function NotificationLibrary:CreateNotification(config)
     ProgressBarBG.Parent = Notification
     ProgressBarBG.BackgroundColor3 = Color3.fromRGB(20, 20, 23)
     ProgressBarBG.BorderSizePixel = 0
-    ProgressBarBG.Position = UDim2.new(0, 0, 0.95, -4)
+    ProgressBarBG.Position = UDim2.new(0, 0, 1, -4)
     ProgressBarBG.Size = UDim2.new(1, 0, 0, 4)
     
     -- Progress bar (fill)
