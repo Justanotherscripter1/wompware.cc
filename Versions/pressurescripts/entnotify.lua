@@ -25,4 +25,19 @@ if tostring(bjarg) == "StatueRoot" and vals then
 NotificationLib:Notify("Candle Brute spawned!", "drop your lights bro", 5)
 end
 end)
+
+workspace.GameplayFolder.Rooms.ChildAdded:Connect(function(room)
+    for i, v in ipairs(room:GetChildren()) do 
+        if v.Name == "MonsterLocker" then
+            NotificationLib:Notify("Void locker", "he WILL diddy your butthole.", 5)
+        end
+    end
+end)
+
+
+
+
+
+
+
 return {val = sv}
