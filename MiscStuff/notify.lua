@@ -1,9 +1,5 @@
 local NotificationLibrary = {}
 local TweenService = game:GetService("TweenService")
-function uuid()
-   return game:GetService("HttpService"):GenerateGUID()
-end
-
 
 -- Configuration
 local NOTIFICATION_HEIGHT = 70
@@ -13,7 +9,7 @@ local EDGE_OFFSET = 20
 
 -- Create main GUI
 local AbyssGUI = Instance.new("ScreenGui")
-AbyssGUI.Name = uuid()
+AbyssGUI.Name = "6zw4xe7r5ct8vy9uboinpo[m"
 AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
