@@ -16,20 +16,26 @@ AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
 
+-- Container for notifications
+local NotificationContainer = Instance.new("Frame")
+NotificationContainer.Name = "NotificationContainer"
+NotificationContainer.Parent = AbyssGUI
+NotificationContainer.BackgroundTransparency = 1
+NotificationContainer.Size = UDim2.new(0, NOTIFICATION_WIDTH, 1, 0)
+NotificationContainer.Position = UDim2.new(1, -NOTIFICATION_WIDTH - 20, 0, 0)
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = NotificationContainer
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, NOTIFICATION_GAP)
+UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+
+local UIPadding = Instance.new("UIPadding")
+UIPadding.Parent = NotificationContainer
+UIPadding.PaddingBottom = UDim.new(0, 20)
+
 -- Active notifications tracking
 local activeNotifications = {}
-local notificationPositions = {}
-
-function NotificationLibrary:UpdateNotificationPositions()
-    for i, notification in ipairs(activeNotifications) do
-        local targetY = 20 + ((i - 1) * (NOTIFICATION_HEIGHT + NOTIFICATION_GAP))
-        TweenService:Create(
-            notification,
-            TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-            {Position = UDim2.new(1, -NOTIFICATION_WIDTH - 20, 0, targetY)}
-        ):Play()
-    end
-end
 
 function NotificationLibrary:CreateNotification(config)
     local TitleText = config.Title or "Notification"
@@ -42,15 +48,13 @@ function NotificationLibrary:CreateNotification(config)
     -- Create notification frame
     local Notification = Instance.new("Frame")
     Notification.Name = "Notification"
-    Notification.Parent = AbyssGUI
+    Notification.Parent = NotificationContainer
     Notification.BackgroundColor3 = Color3.fromRGB(25, 25, 28)
     Notification.BorderSizePixel = 0
-    Notification.Size = UDim2.new(0, NOTIFICATION_WIDTH, 0, NOTIFICATION_HEIGHT)
+    Notification.Size = UDim2.new(1, 0, 0, NOTIFICATION_HEIGHT)
+    Notification.Position = UDim2.new(1.5, 0, 0, 0) -- Start off-screen
     Notification.ClipsDescendants = true
-    
-    -- Start position (off-screen to the right)
-    local startY = 20 + (#activeNotifications * (NOTIFICATION_HEIGHT + NOTIFICATION_GAP))
-    Notification.Position = UDim2.new(1, 20, 0, startY) -- Start off-screen right
+    Notification.LayoutOrder = #activeNotifications + 1
     
     -- Add gradient background
     local UIGradient = Instance.new("UIGradient")
@@ -73,32 +77,22 @@ function NotificationLibrary:CreateNotification(config)
     UIStroke.Transparency = 0.5
     UIStroke.Parent = Notification
     
-    -- Progress bar container (to clip the bar properly)
-    local ProgressContainer = Instance.new("Frame")
-    ProgressContainer.Name = "ProgressContainer"
-    ProgressContainer.Parent = Notification
-    ProgressContainer.BackgroundTransparency = 1
-    ProgressContainer.Position = UDim2.new(0, 0, 1, -12)
-    ProgressContainer.Size = UDim2.new(1, 0, 0, 12)
-    ProgressContainer.ClipsDescendants = true
-    
     -- Progress bar (background)
     local ProgressBarBG = Instance.new("Frame")
     ProgressBarBG.Name = "ProgressBarBG"
-    ProgressBarBG.Parent = ProgressContainer
+    ProgressBarBG.Parent = Notification
     ProgressBarBG.BackgroundColor3 = Color3.fromRGB(20, 20, 23)
     ProgressBarBG.BorderSizePixel = 0
-    ProgressBarBG.Position = UDim2.new(0, 0, 0, 8)
+    ProgressBarBG.Position = UDim2.new(0, 0, 1, -4)
     ProgressBarBG.Size = UDim2.new(1, 0, 0, 4)
     
-    -- Progress bar (fill) - START FULL and shrink to empty
+    -- Progress bar (fill)
     local ProgressBar = Instance.new("Frame")
     ProgressBar.Name = "ProgressBar"
     ProgressBar.Parent = ProgressBarBG
     ProgressBar.BackgroundColor3 = AccentColor
     ProgressBar.BorderSizePixel = 0
-    ProgressBar.Size = UDim2.new(1, 0, 1, 0) -- Start at full width
-    ProgressBar.Position = UDim2.new(0, 0, 0, 0)
+    ProgressBar.Size = UDim2.new(0, 0, 1, 0)
     
     -- Add glow to progress bar
     local ProgressGlow = Instance.new("UIGradient")
@@ -176,30 +170,28 @@ function NotificationLibrary:CreateNotification(config)
     -- Add to active notifications
     table.insert(activeNotifications, Notification)
     
-    -- Slide in from the right
+    -- Animations
     local slideIn = TweenService:Create(
         Notification,
         TweenInfo.new(SLIDE_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-        {Position = UDim2.new(1, -NOTIFICATION_WIDTH - 20, 0, startY)}
+        {Position = UDim2.new(0, 0, 0, 0)}
     )
     
-    -- Progress bar EMPTIES over time (starts full, goes to 0)
-    local progressEmpty = TweenService:Create(
+    local progressFill = TweenService:Create(
         ProgressBar,
         TweenInfo.new(Duration, Enum.EasingStyle.Linear),
-        {Size = UDim2.new(0, 0, 1, 0)} -- Shrink to 0 width
+        {Size = UDim2.new(1, 0, 1, 0)}
     )
     
     local function removeNotification()
-        -- Slide out to the right
-        local slideOut = TweenService:Create(
+        local fadeOut = TweenService:Create(
             Notification,
-            TweenInfo.new(FADE_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
-            {Position = UDim2.new(1, 20, 0, Notification.Position.Y.Offset)}
+            TweenInfo.new(FADE_TIME, Enum.EasingStyle.Quart),
+            {Position = UDim2.new(1.5, 0, 0, 0)}
         )
         
-        slideOut:Play()
-        slideOut.Completed:Connect(function()
+        fadeOut:Play()
+        fadeOut.Completed:Connect(function()
             -- Remove from active notifications
             for i, v in ipairs(activeNotifications) do
                 if v == Notification then
@@ -208,9 +200,6 @@ function NotificationLibrary:CreateNotification(config)
                 end
             end
             Notification:Destroy()
-            
-            -- Update positions of remaining notifications
-            self:UpdateNotificationPositions()
         end)
     end
     
@@ -229,7 +218,7 @@ function NotificationLibrary:CreateNotification(config)
     -- Play animations
     slideIn:Play()
     wait(SLIDE_TIME)
-    progressEmpty:Play()
+    progressFill:Play()
     
     -- Auto remove after duration
     task.wait(Duration)
