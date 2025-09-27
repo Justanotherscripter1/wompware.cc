@@ -16,26 +16,20 @@ AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
 
--- Container for notifications
-local NotificationContainer = Instance.new("Frame")
-NotificationContainer.Name = "NotificationContainer"
-NotificationContainer.Parent = AbyssGUI
-NotificationContainer.BackgroundTransparency = 1
-NotificationContainer.Size = UDim2.new(0, NOTIFICATION_WIDTH, 1, 0)
-NotificationContainer.Position = UDim2.new(1, -NOTIFICATION_WIDTH - 20, 0, 0)
-
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = NotificationContainer
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, NOTIFICATION_GAP)
-UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-
-local UIPadding = Instance.new("UIPadding")
-UIPadding.Parent = NotificationContainer
-UIPadding.PaddingBottom = UDim.new(0, 20)
-
 -- Active notifications tracking
 local activeNotifications = {}
+local notificationPositions = {}
+
+function NotificationLibrary:UpdateNotificationPositions()
+    for i, notification in ipairs(activeNotifications) do
+        local targetY = 20 + ((i - 1) * (NOTIFICATION_HEIGHT + NOTIFICATION_GAP))
+        TweenService:Create(
+            notification,
+            TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+            {Position = UDim2.new(1, -NOTIFICATION_WIDTH - 20, 0, targetY)}
+        ):Play()
+    end
+end
 
 function NotificationLibrary:CreateNotification(config)
     local TitleText = config.Title or "Notification"
@@ -48,13 +42,15 @@ function NotificationLibrary:CreateNotification(config)
     -- Create notification frame
     local Notification = Instance.new("Frame")
     Notification.Name = "Notification"
-    Notification.Parent = NotificationContainer
+    Notification.Parent = AbyssGUI
     Notification.BackgroundColor3 = Color3.fromRGB(25, 25, 28)
     Notification.BorderSizePixel = 0
-    Notification.Size = UDim2.new(1, 0, 0, NOTIFICATION_HEIGHT)
-    Notification.Position = UDim2.new(1.5, 0, 0, 0) -- Start off-screen
+    Notification.Size = UDim2.new(0, NOTIFICATION_WIDTH, 0, NOTIFICATION_HEIGHT)
     Notification.ClipsDescendants = true
-    Notification.LayoutOrder = #activeNotifications + 1
+    
+    -- Start position (off-screen to the right)
+    local startY = 20 + (#activeNotifications * (NOTIFICATION_HEIGHT + NOTIFICATION_GAP))
+    Notification.Position = UDim2.new(1, 20, 0, startY) -- Start off-screen right
     
     -- Add gradient background
     local UIGradient = Instance.new("UIGradient")
@@ -180,11 +176,11 @@ function NotificationLibrary:CreateNotification(config)
     -- Add to active notifications
     table.insert(activeNotifications, Notification)
     
-    -- Animations
+    -- Slide in from the right
     local slideIn = TweenService:Create(
         Notification,
         TweenInfo.new(SLIDE_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-        {Position = UDim2.new(0, 0, 0, 0)}
+        {Position = UDim2.new(1, -NOTIFICATION_WIDTH - 20, 0, startY)}
     )
     
     -- Progress bar EMPTIES over time (starts full, goes to 0)
@@ -195,14 +191,15 @@ function NotificationLibrary:CreateNotification(config)
     )
     
     local function removeNotification()
-        local fadeOut = TweenService:Create(
+        -- Slide out to the right
+        local slideOut = TweenService:Create(
             Notification,
-            TweenInfo.new(FADE_TIME, Enum.EasingStyle.Quart),
-            {Position = UDim2.new(1.5, 0, 0, 0)}
+            TweenInfo.new(FADE_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
+            {Position = UDim2.new(1, 20, 0, Notification.Position.Y.Offset)}
         )
         
-        fadeOut:Play()
-        fadeOut.Completed:Connect(function()
+        slideOut:Play()
+        slideOut.Completed:Connect(function()
             -- Remove from active notifications
             for i, v in ipairs(activeNotifications) do
                 if v == Notification then
@@ -211,6 +208,9 @@ function NotificationLibrary:CreateNotification(config)
                 end
             end
             Notification:Destroy()
+            
+            -- Update positions of remaining notifications
+            self:UpdateNotificationPositions()
         end)
     end
     
