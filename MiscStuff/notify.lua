@@ -13,7 +13,7 @@ local EDGE_OFFSET = 20
 
 -- Create main GUI
 local AbyssGUI = Instance.new("ScreenGui")
-AbyssGUI.Name = tostring(uuid())
+AbyssGUI.Name = uuid()
 AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
