@@ -1,3 +1,8 @@
+Below is an updated version of your notification code that adds rounded corners to the progress bar. In this version, two new `UICorner` instances are added—one for the progress bar’s background (`ProgressBarBG`) and one for the filling bar (`ProgressBar`)—to give them both smooth, rounded edges.
+
+You can adjust the `CornerRadius` values if needed (here they’re set to 2 pixels, which works well given that the progress bar is only 3 pixels high):
+
+```lua
 local NotificationLibrary = {}
 local TweenService = game:GetService("TweenService")
 
@@ -19,7 +24,6 @@ AbyssGUI.Name = uuid()  -- now it actually calls the function
 AbyssGUI.Parent = game:GetService("CoreGui")
 AbyssGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AbyssGUI.ResetOnSpawn = false
-
 
 -- Active notifications tracking
 local activeNotifications = {}
@@ -56,7 +60,7 @@ function NotificationLibrary:CreateNotification(config)
     local startY = -EDGE_OFFSET - ((#activeNotifications + 1) * (NOTIFICATION_HEIGHT + NOTIFICATION_GAP))
     Notification.Position = UDim2.new(1, EDGE_OFFSET, 1, startY)
     
-    -- Rounded corners
+    -- Rounded corners for notification frame
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = Notification
@@ -86,6 +90,11 @@ function NotificationLibrary:CreateNotification(config)
     ProgressBarBG.Position = UDim2.new(0, 0, 0, 5)
     ProgressBarBG.Size = UDim2.new(1, 0, 0, 3)
     
+    -- Rounded corners for progress bar background
+    local progressBarBGCorner = Instance.new("UICorner")
+    progressBarBGCorner.CornerRadius = UDim.new(0, 2)
+    progressBarBGCorner.Parent = ProgressBarBG
+    
     -- Progress bar (starts full, empties over time)
     local ProgressBar = Instance.new("Frame")
     ProgressBar.Name = "ProgressBar"
@@ -94,6 +103,11 @@ function NotificationLibrary:CreateNotification(config)
     ProgressBar.BorderSizePixel = 0
     ProgressBar.Size = UDim2.new(1, 0, 1, 0)
     ProgressBar.Position = UDim2.new(0, 0, 0, 0)
+    
+    -- Rounded corners for progress bar fill
+    local progressBarCorner = Instance.new("UICorner")
+    progressBarCorner.CornerRadius = UDim.new(0, 2)
+    progressBarCorner.Parent = ProgressBar
     
     -- Icon
     local IconImage = Instance.new("ImageLabel")
