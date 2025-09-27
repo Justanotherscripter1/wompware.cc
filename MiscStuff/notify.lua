@@ -131,17 +131,18 @@ function NotificationLibrary:CreateNotification(config)
     DescriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
     DescriptionLabel.TextWrapped = true
 
-    -- Close button
-    local CloseButton = Instance.new("TextButton")
-    CloseButton.Name = "CloseButton"
-    CloseButton.Parent = Notification
-    CloseButton.BackgroundTransparency = 1
-    CloseButton.Position = UDim2.new(1, -30, 0, 5)
-    CloseButton.Size = UDim2.new(0, 25, 0, 25)
-    CloseButton.Font = Enum.Font.SourceSans
-    CloseButton.Text = "×"
-    CloseButton.TextColor3 = Color3.fromRGB(120, 120, 120)
-    CloseButton.TextSize = 18
+-- Close button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = Notification
+CloseButton.BackgroundTransparency = 1
+CloseButton.AnchorPoint = Vector2.new(0.5, 0.5)  -- anchor at center
+CloseButton.Position = UDim2.new(1, -17, 0, 17)   -- tweak to account for new anchor
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Font = Enum.Font.SourceSans
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(120, 120, 120)
+CloseButton.TextSize = 18
 
     local notificationData = {
         Frame = Notification,
@@ -182,7 +183,6 @@ function NotificationLibrary:CreateNotification(config)
         end)
     end
 
-   -- Inside your CreateNotification, replace the CloseButton section with this:
 
 -- Close button hover
 CloseButton.MouseEnter:Connect(function()
